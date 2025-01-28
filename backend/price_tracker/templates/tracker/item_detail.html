@@ -1,0 +1,12 @@
+<h1>{{ item.name }}</h1>
+<p>Current Price: {{ item.current_price }}</p>
+<p>Lowest Price: {{ item.lowest_price }}</p>
+<p>Last Checked: {{ item.last_checked }}</p>
+
+<h2>Price History</h2>
+<ul>
+  {% for history in price_history %}
+  <li>{{ history.timestamp }} - {{ history.price }}</li>
+  {% endfor %}
+</ul>
+<a href="{% url 'tracked_items' %}">Back to Tracked Items</a>

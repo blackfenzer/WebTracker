@@ -1,0 +1,6 @@
+<h1>Add Item to Track</h1>
+<form method="post">
+  {% csrf_token %} {{ form.as_p }}
+  <button type="submit">Track Item</button>
+</form>
+<a href="{% url 'tracked_items' %}">View Tracked Items</a>
