@@ -13,8 +13,12 @@ export default defineNuxtConfig({
         config.plugins.push(vuetify({ autoImport: true }));
       });
     },
-    //...
   ],
+  runtimeConfig: {
+    public: {
+      baseURL: process.env.BASE_URL || "http://localhost:8000",
+    },
+  },
   vite: {
     vue: {
       template: {
