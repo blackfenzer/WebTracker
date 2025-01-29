@@ -3,6 +3,12 @@ from django.utils import timezone
 from .models import TrackedItem, PriceHistory
 from .forms import TrackedItemForm
 from .scraper import LazadaScraper  # Import the scraper
+from django.http import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.middleware.csrf import get_token
 
 
 def add_tracked_item(request):
@@ -48,3 +54,8 @@ def item_detail(request, item_id):
         "tracker/item_detail.html",
         {"item": item, "price_history": price_history},
     )
+
+
+@api_view(["GET"])
+def get_csrf_token(request):
+    return Response({"csrfToken": get_token(request)})

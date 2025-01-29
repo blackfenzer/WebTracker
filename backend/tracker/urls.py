@@ -21,4 +21,5 @@ from django.urls import path, include
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("price_tracker/", include("price_tracker.urls")),
+    path("csrf_token/", include("price_tracker.urls")),
 ]
