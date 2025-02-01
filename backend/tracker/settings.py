@@ -59,8 +59,9 @@ MIDDLEWARE = [
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
-# CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]  # We add your frontend URL here.
-# CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]  # We add your frontend URL here.
+
+CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]  # We add your frontend URL here.
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]  # We add your frontend URL here.
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [

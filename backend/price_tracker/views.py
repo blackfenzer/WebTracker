@@ -9,13 +9,20 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.middleware.csrf import get_token
+from django.views.decorators.csrf import csrf_exempt
+import json
 
-
+@csrf_exempt
 def add_tracked_item(request):
     if request.method == "POST":
-        form = TrackedItemForm(request.POST)
-        if form.is_valid():
-            url = form.cleaned_data["url"]
+        try:
+            # Parse the JSON body
+            data = json.loads(request.body.decode("utf-8"))
+            url = data.get("url")
+
+            if not url:
+                return JsonResponse({"error": "URL is required"}, status=400)
+
             scraper = LazadaScraper()
             name, price = scraper.find_price_and_name(url)
             scraper.close()
@@ -35,15 +42,37 @@ def add_tracked_item(request):
                 # Add price to PriceHistory
                 PriceHistory.objects.create(item=item, price=price)
 
-                return redirect("tracked_items")
-    else:
-        form = TrackedItemForm()
-    return render(request, "tracker/add_tracked_item.html", {"form": form})
+                return JsonResponse({"message": "Item added successfully"})
+            else:
+                return JsonResponse(
+                    {"error": "Unable to scrape item information"}, status=400
+                )
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
+
+    return JsonResponse({"error": "Only POST method is allowed"}, status=405)
 
 
 def tracked_items(request):
     items = TrackedItem.objects.all()
     return render(request, "tracker/tracked_items.html", {"items": items})
+
+
+def show_all_items(request):
+    items = TrackedItem.objects.all()
+    items_data = [
+        {
+            "id": item.id,
+            "name": item.name,
+            "url": item.url,
+            "current_price": item.current_price,
+            "lowest_price": item.lowest_price,
+            "last_checked": item.last_checked,
+        }
+        for item in items
+    ]
+    return JsonResponse({"items": items_data}, safe=False)
 
 
 def item_detail(request, item_id):
