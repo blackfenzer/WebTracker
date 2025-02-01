@@ -17,9 +17,17 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework import routers
+# from price_tracker.views import PriceViewSet
+
+# router = routers.DefaultRouter()
+# router.register("price", PriceViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("price_tracker/", include("price_tracker.urls")),
-    path("csrf_token/", include("price_tracker.urls")),
+    path("api/", include("price_tracker.urls")),
+    # path("csrf_token/", include("price_tracker.urls")),
+    # path("", include("sim.urls")),
+    path("api/auth/", include("djoser.urls")),
+    path("api/auth/", include("djoser.urls.authtoken")),
 ]
