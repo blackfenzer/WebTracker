@@ -6,5 +6,10 @@ urlpatterns = [
     path("", views.tracked_items, name="tracked_items"),
     path("item/<int:item_id>/", views.item_detail, name="item_detail"),
     path("csrf_token/", views.get_csrf_token, name="csrf_token"),
-    path("show/", views.show_all_items, name="show"),
+    # path("show/", views.show_all_items, name="show"),
+    path("update/", views.update_tracked_prices, name="update"),
+    path("show/", views.show_all_items, name="show_all_items"),
 ]
+    # path("api/items/", views.get_items, name="get_items"),
+    # path("api/items/<int:item_id>/", views.get_item, name="get_item"),
+    # path("api/items/<int:item_id>/prices/", views.get_item_prices, name="get_item_prices"),
