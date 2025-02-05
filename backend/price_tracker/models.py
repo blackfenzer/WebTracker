@@ -3,7 +3,7 @@ from django.db import models
 
 class ItemResult(models.Model):
     id = models.AutoField(primary_key=True)
-    url = models.URLField(unique=True)
+    url = models.URLField(unique=False)
     name = models.CharField(max_length=255)
     current_price = models.DecimalField(
         max_digits=10, decimal_places=2, null=False, default=0.0

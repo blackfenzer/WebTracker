@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { useAuth } from '~/composables/useAuth';
+import { createVuetify } from 'vuetify';
 
 definePageMeta({ middleware: 'auth' });
 
 const user = ref(null);
 const auth = useAuth();
 const items = ref<Array<{
-    id: number,
+    url: string,
     name: string,
-    // current_price: number,
-    lowest_price: number,
+    current_price: number,
     last_checked: string,
     price_history: Array<{ price: number, timestamp: string }>
 }>>([]);
@@ -20,19 +20,36 @@ const message = ref('');
 const headers = [
     { title: 'Name', key: 'name' },
     { title: 'Current Price', key: 'current_price' },
-    { title: 'Lowest Price', key: 'lowest_price' },
-    { title: 'Last Checked', key: 'last_checked' },
-    { title: 'Actions', key: 'actions', sortable: false }
+    { title: 'Last Checked', key: 'created_at' },
+    { title: "Url", key: "url" },
+    // { title: 'Actions', key: 'actions', sortable: false }
 ];
+const history = ref<Array<{
+    tracked_id: number;
+    name: string;
+    url: string;
+    price_history: Array<{
+        current_price: number;
+        created_at: string;
+        name: string;
+    }>;
+}>>([]);
 
 const fetchTrackedItems = async () => {
     try {
         const response = await fetch('http://127.0.0.1:8000/api/show/');
         const data = await response.json();
+
+        // Fetch price history separately
+        const historyResponse = await fetch('http://127.0.0.1:8000/api/history/');
+        const historyData = await historyResponse.json();
+
         items.value = data.items.map(item => ({
             ...item,
-            price_history: item.price_history || []  // Ensure price history exists
+            price_history: historyData[item.id] || []  // Match item price history
         }));
+        history.value = historyData.items;
+        console.log(items.value);
     } catch (error) {
         console.error("Error fetching items:", error);
     }
@@ -65,8 +82,8 @@ async function handleLogout() {
     await auth.logout();
     navigateTo('/login');
 }
-
 </script>
+
 
 <template>
     <v-container>
@@ -75,7 +92,7 @@ async function handleLogout() {
                 <v-card>
                     <v-card-title class="headline">Dashboard</v-card-title>
                     <v-card-text>
-                        <p v-if="user">Welcome, {{ user || "Anonymous" }}</p>
+                        <p v-if="user">Welcome</p>
                     </v-card-text>
                 </v-card>
             </v-col>
@@ -102,8 +119,8 @@ async function handleLogout() {
                     <v-card-title class="headline">Tracked Items List</v-card-title>
                     <v-card-text>
                         <v-data-table :headers="headers" :items="items" :items-per-page="5" class="elevation-1">
-                            <template v-slot:item.actions="{ item }">
-                                <NuxtLink :to="`/item/${item.id}`">
+                            <template v-slot:item.url="{ item }">
+                                <NuxtLink :href="`${item.url}`" target="_blank">
                                     <v-btn color="primary" small>View</v-btn>
                                 </NuxtLink>
                             </template>
@@ -119,15 +136,17 @@ async function handleLogout() {
                     <v-card-title class="headline">Price History</v-card-title>
                     <v-card-text>
                         <v-expansion-panels>
-                            <v-expansion-panel v-for="item in items" :key="item.id">
+                            <v-expansion-panel v-for="item in history" :key="item.tracked_id">
                                 <v-expansion-panel-title>
                                     {{ item.name }}
                                 </v-expansion-panel-title>
                                 <v-expansion-panel-text>
                                     <v-list>
-                                        <v-list-item v-for="history in item.price_history" :key="history.timestamp">
+                                        <v-list-item v-for="history in item.price_history" :key="history.created_at">
                                             <v-list-item-title>
-                                                {{ history.price }} ({{ new Date(history.timestamp).toLocaleString() }})
+                                                {{ history.current_price }} baht -- at ({{ new
+                                                Date(history.created_at).toLocaleString()
+                                                }})
                                             </v-list-item-title>
                                         </v-list-item>
                                     </v-list>

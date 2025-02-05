@@ -1,3 +1,4 @@
+from collections import defaultdict
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from .models import PriceHistory, TrackedItem, ItemResult
@@ -70,6 +71,35 @@ def show_all_items(request):
 
     return JsonResponse({"items": joined_data}, safe=False)
 
+def show_all_history(request):
+    items = TrackedItem.objects.all()
+    results = ItemResult.objects.all().order_by("-created_at")  # Order by newest first
+
+    # Dictionary to group results by URL
+    history_data = defaultdict(list)
+    
+    for result in results:
+        history_data[result.url].append(
+            {
+                "name": result.name,
+                "current_price": float(result.current_price),
+                "created_at": result.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            }
+        )
+
+    joined_data = []
+    for item in items:
+        if item.url in history_data:
+            joined_data.append(
+                {
+                    "tracked_id": item.id,
+                    "url": item.url,
+                    "name": history_data[item.url][0]["name"],  # Latest name
+                    "price_history": history_data[item.url],
+                }
+            )
+
+    return JsonResponse({"items": joined_data}, safe=False)
 
 @csrf_exempt
 def update_tracked_prices(request):

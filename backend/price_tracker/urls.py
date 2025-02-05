@@ -9,7 +9,5 @@ urlpatterns = [
     # path("show/", views.show_all_items, name="show"),
     path("update/", views.update_tracked_prices, name="update"),
     path("show/", views.show_all_items, name="show_all_items"),
+    path("history/", views.show_all_history, name="show_all_history"),
 ]
-    # path("api/items/", views.get_items, name="get_items"),
-    # path("api/items/<int:item_id>/", views.get_item, name="get_item"),
-    # path("api/items/<int:item_id>/prices/", views.get_item_prices, name="get_item_prices"),
