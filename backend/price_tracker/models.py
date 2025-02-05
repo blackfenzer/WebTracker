@@ -8,6 +8,7 @@ class ItemResult(models.Model):
     current_price = models.DecimalField(
         max_digits=10, decimal_places=2, null=False, default=0.0
     )
+    rating = models.IntegerField(null=False, default=0)
     # lowest_price = models.DecimalField(
     #     max_digits=10, decimal_places=2, null=False, default=0.0
     # )

@@ -10,4 +10,7 @@ urlpatterns = [
     path("update/", views.update_tracked_prices, name="update"),
     path("show/", views.show_all_items, name="show_all_items"),
     path("history/", views.show_all_history, name="show_all_history"),
+    path("all/", views.scrape_all_items, name="scrape_all_items"),
 ]
+
+# use show ,history ,add , scrape_all

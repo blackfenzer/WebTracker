@@ -46,8 +46,18 @@ class LazadaScraper:
                 By.CLASS_NAME, "pdp-mod-product-badge-title"
             )
             name = name_element.text.strip()
+            
+            
+            ratings_element = WebDriverWait(self.driver, 3).until(
+                    EC.presence_of_element_located(
+                        (By.CSS_SELECTOR, ".pdp-review-summary__link")
+                    )
+                )
 
-            return name, price
+            rating = ratings_element.text.split(" ")[0]
+            price = float(price.replace("฿", "").replace(",", "").strip())
+
+            return name, price , rating
 
         except Exception as e:
             print(f"Error scraping {url}: {e}")
@@ -105,15 +115,20 @@ class LazadaScraper:
                         (By.CSS_SELECTOR, ".pdp-review-summary__link")
                     )
                 )
-                ratings_text = ratings_element.text
+
+                ratings_text = ratings_element.text.split(" ")[0]
+                price = float(price.replace("฿", "").replace(",", "").strip())
 
                 results.append(
-                    {"name": name, "price": price, "url": url, "ratings": ratings_text}
+                    {"name": name, "price": price, "url": url, "rating": ratings_text}
                 )
-                print(f"Scraped: {name} - {price} - {ratings_text}")
+                print(f"Scraped: {name} - {price} - {ratings_text} rating")
+
+            return results
 
         except Exception as e:
             print(f"Error scraping {url}: {e}")
+            return []
 
 
 # Example Usage

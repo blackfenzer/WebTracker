@@ -10,6 +10,7 @@ const items = ref<Array<{
     url: string,
     name: string,
     current_price: number,
+    rating: number,
     last_checked: string,
     price_history: Array<{ price: number, timestamp: string }>
 }>>([]);
@@ -21,6 +22,7 @@ const headers = [
     { title: 'Name', key: 'name' },
     { title: 'Current Price', key: 'current_price' },
     { title: 'Last Checked', key: 'created_at' },
+    { title: 'Rating', key: 'rating' },
     { title: "Url", key: "url" },
     // { title: 'Actions', key: 'actions', sortable: false }
 ];
@@ -31,6 +33,7 @@ const history = ref<Array<{
     price_history: Array<{
         current_price: number;
         created_at: string;
+        rating: number;
         name: string;
     }>;
 }>>([]);
@@ -82,6 +85,31 @@ async function handleLogout() {
     await auth.logout();
     navigateTo('/login');
 }
+
+const scrapeAllTrackedItems = async () => {
+    try {
+        const urls = items.value.map(item => item.url);
+        if (urls.length === 0) {
+            message.value = "No items to scrape.";
+            return;
+        }
+
+        const response = await fetch('http://127.0.0.1:8000/api/all/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ urls }),
+        });
+
+        if (!response.ok) throw new Error("Failed to scrape items");
+
+        message.value = "Scraping initiated successfully!";
+        fetchTrackedItems(); // Refresh the list after scraping
+    } catch (error) {
+        console.error("Error scraping items:", error);
+        message.value = "Error scraping items.";
+    }
+};
+
 </script>
 
 
@@ -126,6 +154,13 @@ async function handleLogout() {
                             </template>
                         </v-data-table>
                     </v-card-text>
+                    <v-row>
+                        <v-col cols="12" class="text-center mb-4">
+                            <v-btn color="primary" @click="scrapeAllTrackedItems">Scrape All Items</v-btn>
+                            <p v-if="message" class="mt-2">{{ message }}</p>
+                        </v-col>
+                    </v-row>
+
                 </v-card>
             </v-col>
         </v-row>
@@ -145,8 +180,8 @@ async function handleLogout() {
                                         <v-list-item v-for="history in item.price_history" :key="history.created_at">
                                             <v-list-item-title>
                                                 {{ history.current_price }} baht -- at ({{ new
-                                                Date(history.created_at).toLocaleString()
-                                                }})
+                                                    Date(history.created_at).toLocaleString()
+                                                }}) -- rating: {{ history.rating }}
                                             </v-list-item-title>
                                         </v-list-item>
                                     </v-list>

@@ -30,13 +30,12 @@ def add_tracked_item(request):
                 return JsonResponse({"error": "URL is required"}, status=400)
 
             scraper = LazadaScraper()
-            name, price = scraper.find_price_and_name(url)
+            name, price, rating = scraper.find_price_and_name(url)
             scraper.close()
 
-            if name and price:
-                price = float(price.replace("฿", "").replace(",", "").strip())
+            if name and price and rating:
                 tracked_item, created = TrackedItem.objects.get_or_create(url=url)
-                ItemResult.objects.create(url=url, name=name, current_price=price)
+                ItemResult.objects.create(url=url, name=name, current_price=price , rating=rating)
 
                 return JsonResponse({"message": "Item tracked successfully"})
             else:
@@ -63,6 +62,7 @@ def show_all_items(request):
                     "tracked_id": item.id,
                     "url": item.url,
                     "name": result.name,
+                    "rating": result.rating,
                     "current_price": result.current_price,
                     "created_at": result.created_at,
                     "tracked": item.tracked,
@@ -71,18 +71,20 @@ def show_all_items(request):
 
     return JsonResponse({"items": joined_data}, safe=False)
 
+
 def show_all_history(request):
     items = TrackedItem.objects.all()
     results = ItemResult.objects.all().order_by("-created_at")  # Order by newest first
 
     # Dictionary to group results by URL
     history_data = defaultdict(list)
-    
+
     for result in results:
         history_data[result.url].append(
             {
                 "name": result.name,
                 "current_price": float(result.current_price),
+                "rating": result.rating,
                 "created_at": result.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             }
         )
@@ -100,6 +102,7 @@ def show_all_history(request):
             )
 
     return JsonResponse({"items": joined_data}, safe=False)
+
 
 @csrf_exempt
 def update_tracked_prices(request):
@@ -142,3 +145,26 @@ def item_detail(request, item_id):
         "tracker/item_detail.html",
         {"item": item, "price_history": price_history},
     )
+
+
+@csrf_exempt
+def scrape_all_items(request):
+    if request.method == "POST":
+        data = json.loads(request.body.decode("utf-8"))
+        urls = data.get("urls", [])  # Expecting a list of URLs
+        if not isinstance(urls, list):
+            return JsonResponse({"error": "urls must be a list"}, status=400)
+
+        scraper = LazadaScraper()
+        result = scraper.find_many(urls)
+        scraper.close()
+        for item in result:
+            ItemResult.objects.create(
+                url=item["url"],
+                name=item["name"],
+                current_price=item["price"],
+                rating=item["rating"],
+            )
+
+        return JsonResponse({"message": "All items scraped successfully"})
+    return JsonResponse({"error": "Only POST method is allowed"}, status=405)
