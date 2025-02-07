@@ -60,17 +60,21 @@ cd frontend
 yarn add
 ```
 
-#### 3. Install Backend Dependencies
+#### 3. Install Backend Dependencies && Migration
 
 ```sh
 cd backend
 pip install -r requirements.txt
+cd WebTracker
+make db
+make m
 ```
 
 #### 4. Run Frontend && Run Backend
 
 ```sh
 cd WebTracker
+
 make r
 make dev
 ```
@@ -83,5 +87,3 @@ make dev
 | `GET` | `/api/show/` | Get all tracked items |
 | `GET` | `/api/history/` | Get price history |
 | `POST` | `/api/all/` | Scrape all tracked items |
-
-

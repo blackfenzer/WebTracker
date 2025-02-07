@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "djoser",
     "price_tracker",
     "sim",
+    "django_celery_beat",
 ]
 
 
@@ -149,9 +150,17 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+from celery.schedules import crontab
 
 CELERY_BROKER_URL = "redis://localhost:6379/0"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+CELERY_BEAT_SCHEDULE = {
+    "scrape-lazada-every-hour": {
+        "task": "price_tracker.tasks.generate_price_drop_report",
+        "schedule": crontab(hour="*/12"),  # Executes every hour
+    },
+}
+
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"

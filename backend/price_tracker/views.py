@@ -35,7 +35,9 @@ def add_tracked_item(request):
 
             if name and price and rating:
                 tracked_item, created = TrackedItem.objects.get_or_create(url=url)
-                ItemResult.objects.create(url=url, name=name, current_price=price , rating=rating)
+                ItemResult.objects.create(
+                    url=url, name=name, current_price=price, rating=rating
+                )
 
                 return JsonResponse({"message": "Item tracked successfully"})
             else:
