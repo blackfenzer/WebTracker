@@ -1,20 +1,19 @@
 BACKEND_DIR := ./backend
 FRONTEND_DIR := ./frontend
+
 m:
 	python ${BACKEND_DIR}/manage.py migrate
 
 db:
 	python ${BACKEND_DIR}/manage.py makemigrations
 
-r:
+server:
 	python ${BACKEND_DIR}/manage.py runserver
 
-dev:
+client:
 	cd ${FRONTEND_DIR} && yarn run dev
 
-start: r dev
-
-dk:
+docker:
 	docker compose up -d
 
 beat:
@@ -22,4 +21,16 @@ beat:
 
 worker:
 	cd ${BACKEND_DIR} && celery -A tracker worker --loglevel=info -P eventlet
+
+
+pip:
+	cd ${BACKEND_DIR} && pip install -r requirements.txt
+
+node:
+	cd ${FRONTEND_DIR} && pnpm install
+
+
+irFrontend: node client
+
+irBackend: pip db m server
 

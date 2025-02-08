@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useAuth } from '~/composables/useAuth';
 import { createVuetify } from 'vuetify';
-
 definePageMeta({ middleware: 'auth' });
 
 const user = ref(null);
@@ -175,16 +174,10 @@ const scrapeAllTrackedItems = async () => {
                                 <v-expansion-panel-title>
                                     {{ item.name }}
                                 </v-expansion-panel-title>
-                                <v-expansion-panel-text>
-                                    <v-list>
-                                        <v-list-item v-for="history in item.price_history" :key="history.created_at">
-                                            <v-list-item-title>
-                                                {{ history.current_price }} baht -- at ({{ new
-                                                    Date(history.created_at).toLocaleString()
-                                                }}) -- rating: {{ history.rating }}
-                                            </v-list-item-title>
-                                        </v-list-item>
-                                    </v-list>
+                                <v-expansion-panel-text style="height: 1000px;">
+
+                                    <PriceHistoryChart :priceHistory="item.price_history" />
+
                                 </v-expansion-panel-text>
                             </v-expansion-panel>
                         </v-expansion-panels>

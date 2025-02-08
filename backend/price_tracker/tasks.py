@@ -68,7 +68,7 @@ def generate_price_drop_report():
     watching = [item.url for item in items]
 
     # Run the scraper to update prices
-    scraper.find_many(watching)
+    x = scraper.find_many(watching)
     scraper.close()
 
     # Dictionary to store latest two records for each URL
@@ -96,6 +96,14 @@ def generate_price_drop_report():
             report_file.write(f'Report generated on {datetime.now()}:\n')
             report_file.writelines(report_lines)
             report_file.write('\n')
+    
+    for item in x:
+        ItemResult.objects.create(
+        url=item["url"],
+        name=item["name"],
+        current_price=item["price"],
+        rating=item["rating"],
+    )
 
 if __name__ == "__main__":
     # Simulate the task execution
